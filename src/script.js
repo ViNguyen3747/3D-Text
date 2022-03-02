@@ -9,7 +9,7 @@ import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
  * Base
  */
 // Debug
-// const gui = new dat.GUI();
+const gui = new dat.GUI();
 
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
@@ -25,9 +25,11 @@ const matcapTexture = textureLoader.load("/textures/matcaps/3.png");
 /**
  * Fonts
  */
+const obj = { text: "Vi Nguyen" };
+
 const fontLoader = new FontLoader();
 fontLoader.load("/fonts/helvetiker_regular.typeface.json", (font) => {
-  const textGeometry = new TextGeometry("Vi Nguyen", {
+  const textParams = {
     font: font,
     size: 0.5,
     height: 0.2,
@@ -37,17 +39,22 @@ fontLoader.load("/fonts/helvetiker_regular.typeface.json", (font) => {
     bevelSize: 0.02,
     bevelOffset: 0,
     bevelSegments: 4,
-  });
-  //   textGeometry.computeBoundingBox();
-  //   textGeometry.translate(
-  //     -(textGeometry.boundingBox.max.x - 0.02) * 0.5,
-  //     -(textGeometry.boundingBox.max.y - 0.02) * 0.5,
-  //     -(textGeometry.boundingBox.max.z - 0.03) * 0.5
-  //   );
+  };
+  let textGeometry = new TextGeometry(obj.text, textParams);
   textGeometry.center();
-  const material = new THREE.MeshMatcapMaterial({ matcap: matcapTexture });
-  const text = new THREE.Mesh(textGeometry, material);
+  let material = new THREE.MeshMatcapMaterial({ matcap: matcapTexture });
+  let text = new THREE.Mesh(textGeometry, material);
   scene.add(text);
+  gui.add(obj, "text").onFinishChange((value) => {
+    scene.remove(text);
+    textGeometry = new TextGeometry(value, textParams);
+    textGeometry.center();
+    material = new THREE.MeshMatcapMaterial({
+      matcap: matcapTexture,
+    });
+    text = new THREE.Mesh(textGeometry, material);
+    scene.add(text);
+  });
   const data = {
     radius: 0.07,
     detail: 0,
